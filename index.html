@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Execution Result</title>
+    <style>
+        .code-container {
+            background-color: #f4f4f4;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .copy-button {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .result {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #007bff;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div>
+            <!-- Question Area -->
+            <div>
+                <p>以下代码的运行结果是(<span style="color: red;" id="selected-option"></span>) </p>
+            </div>
+            <!-- Code Display Area with Copy Functionality -->
+            <div class="code-container">
+                <pre><code>var obj = { a: 1, b: function() { console.log(this.a); } };
+var fun = obj.b;
+fun();</code></pre>
+                <button class="copy-button" onclick="copyCode()">Copy Code</button>
+            </div>
+            <!-- Options Area -->
+            <div>
+                <input type="radio" name="option" value="A" onclick="updateSelectedOption(this)"> A、a<br>
+                <input type="radio" name="option" value="B" onclick="updateSelectedOption(this)"> B、1<br>
+                <input type="radio" name="option" value="C" onclick="updateSelectedOption(this)"> C、undefined<br>
+                <input type="radio" name="option" value="D" onclick="updateSelectedOption(this)"> D、什么也看不到<br>
+            </div>
+            <!-- Button Area -->
+            <div>
+                <button onclick="submitAnswer()">提交</button>
+                <button onclick="resetSelection()">重置</button>
+            </div>
+            <!-- Result Display -->
+            <div class="result" id="result"></div>
+            <!-- Explanation Display -->
+            <div class="explanation" id="explanation" style="display: none;">
+                <strong>解析：</strong>
+                <p>在 JavaScript 中，`this` 的值取决于函数的调用方式。当 `fun = obj.b` 时，`fun` 不再与 `obj` 绑定，因此 `this` 指向全局对象（在浏览器中是
+                    `window`）。由于全局对象中没有 `a` 属性，`this.a` 的值为 `undefined`。</p>
+                <p>正确的代码应保持 `this` 的上下文，例如：</p>
+                <pre><code>var obj = { a: 1, b: function() { console.log(this.a); } };
+obj.b(); // 这样调用会输出 1</code></pre>
+                <hr>
+                <p>另一种实现的方法如下：</p>
+                <pre><code>// 定义一个新的对象 obj
+var obj = {
+    a: 1,
+    b: function () {
+        // 输出 this.a 的值
+        console.log(`第二次输出:`, this.a);
+    }
+};
+// 使用 bind 将 this 绑定到 obj
+var fun = obj.b.bind(obj);
+// 调用 fun，此时 this 指向 obj
+fun(); // 输出 1</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Correct answer
+        const correctAnswer = "C";
+
+        function copyCode() {
+            const code = document.querySelector('.code-container code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            }, () => {
+                alert('Failed to copy code.');
+            });
+        }
+
+        function updateSelectedOption(option) {
+            const selectedOption = document.getElementById('selected-option');
+            selectedOption.textContent = option.value;
+        }
+
+        function submitAnswer() {
+            const selectedOption = document.querySelector('input[name="option"]:checked');
+            const resultDiv = document.getElementById('result');
+            const explanationDiv = document.getElementById('explanation');
+
+            if (selectedOption) {
+                const userAnswer = selectedOption.value;
+                if (userAnswer === correctAnswer) {
+                    resultDiv.textContent = "正确！答案是 " + userAnswer;
+                    resultDiv.className = "result correct";
+                } else {
+                    resultDiv.textContent = "错误！你选择了 " + userAnswer + "，正确答案是 " + correctAnswer;
+                    resultDiv.className = "result incorrect";
+                }
+                // Show explanation
+                explanationDiv.style.display = "block";
+            } else {
+                alert('请先选择一个选项！');
+            }
+        }
+
+        function resetSelection() {
+            const options = document.querySelectorAll('input[name="option"]');
+            options.forEach(option => option.checked = false);
+            document.getElementById('selected-option').textContent = '';
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = '';
+            resultDiv.className = "result";
+            const explanationDiv = document.getElementById('explanation');
+            explanationDiv.style.display = "none"; // Hide explanation on reset
+        }
+    </script>
+</body>
+
+</html>
